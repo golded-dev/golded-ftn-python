@@ -14,6 +14,11 @@ authors = [{name = "GoldED.dev contributors"}]
 dependencies = []
 classifiers = ["Programming Language :: Python :: 3", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: 3.14", "Typing :: Typed", "Operating System :: OS Independent"]
 
+[project.urls]
+Repository = "https://github.com/golded-dev/golded-ftn-python"
+Issues = "https://github.com/golded-dev/golded-ftn-python/issues"
+Changelog = "https://github.com/golded-dev/golded-ftn-python/blob/main/CHANGELOG.md"
+
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.11", "mypy>=1.15", "build>=1.2", "twine>=6"]
 

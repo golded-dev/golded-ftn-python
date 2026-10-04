@@ -1,12 +1,18 @@
 # golded-ftn
 
+Repository: [`golded-ftn-python`](https://github.com/golded-dev/golded-ftn-python).
+The distribution remains `golded-ftn`; imports use `golded_ftn`.
+The source is public on GitHub. This package has not been released on PyPI.
+
 Shared FTN message values, reader/writer protocols and text helpers for Python
 3.12+. No runtime dependencies. No concrete format readers, writers, database
 access or Nornir integration.
 
-This package has not been published. Build and install a local wheel:
+This package is not on PyPI. Clone the repository, then build and install a local wheel:
 
 ```sh
+git clone https://github.com/golded-dev/golded-ftn-python.git
+cd golded-ftn-python
 uv sync --locked
 uv build
 python -m pip install dist/golded_ftn-1.1.0-py3-none-any.whl
