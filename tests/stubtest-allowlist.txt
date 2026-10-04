@@ -1,0 +1,3 @@
+# stubtest treats this Literal type alias as a callable runtime typing object.
+# Its accepted values are exercised by strict/replace/ignore decoding tests.
+golded_ftn.charset.DecodeErrors
