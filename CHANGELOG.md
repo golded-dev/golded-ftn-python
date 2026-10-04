@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 — Unreleased
+
+Add immutable `ReaderIssue` and explicit archive options. Archive mode requires
+a report callback; strict options remain the default.
+
 ## 1.0.0 — Unreleased
 
 Initial Python FTN core: immutable values, structural protocols, FTN addresses,

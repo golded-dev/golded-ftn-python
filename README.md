@@ -9,7 +9,7 @@ This package has not been published. Build and install a local wheel:
 ```sh
 uv sync --locked
 uv build
-python -m pip install dist/golded_ftn-1.0.0-py3-none-any.whl
+python -m pip install dist/golded_ftn-1.1.0-py3-none-any.whl
 ```
 
 ```python
@@ -64,3 +64,25 @@ records nor replace a supplied MSGID.
 
 See [PHP API mapping](docs/php-api.md), [contributing](CONTRIBUTING.md),
 [release checks](docs/releasing.md) and [security](SECURITY.md).
+
+## Archive reading
+
+`ReaderOptions()` keeps strict reading. Concrete readers may support an explicit
+archive mode with a required report callback:
+
+```python
+from golded_ftn import ReaderIssue, ReaderOptions
+
+issues: list[ReaderIssue] = []
+options = ReaderOptions(archive_mode=True, on_issue=issues.append)
+assert options.archive_mode
+```
+
+Each `ReaderIssue` identifies the format, actual source path, record identity and
+physical byte offset when known. Its action is `recovered`, `skipped` or `stopped`;
+its code and detail explain the deviation without including message contents.
+Multiple issues may describe one record. A recovery describes an accepted
+metadata or decoding deviation; a later skip still excludes that record.
+A stop means the area traversal is incomplete, even if earlier messages were
+returned. Filesystem and callback failures propagate. The format package defines
+the allowed recoveries; core does not read or repair files.

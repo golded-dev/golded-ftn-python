@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Literal
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -140,8 +142,27 @@ class ParsedMessage:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
+class ReaderIssue:
+    """A reported archive deviation. Detail contains no message content."""
+
+    source_type: str
+    source_path: str
+    action: Literal["recovered", "skipped", "stopped"]
+    code: str
+    detail: str
+    source_id: str | None = None
+    source_offset: int | None = None
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
 class ReaderOptions:
     fallback_charset: str = "CP850"
+    archive_mode: bool = False
+    on_issue: Callable[[ReaderIssue], None] | None = None
+
+    def __post_init__(self) -> None:
+        if self.archive_mode and self.on_issue is None:
+            raise ValueError("archive_mode requires on_issue")
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

@@ -50,3 +50,6 @@ Fallback FTN aliases are resolved before codec validation. An invalid fallback
 always raises `LookupError`, even when a usable declaration is present. Mojibake
 candidate selection uses the same alias resolver; unknown declarations continue
 to use the default candidate encodings.
+
+Python adds `ReaderIssue` and `ReaderOptions(archive_mode=True, on_issue=...)`
+for reported archive recovery. These have no PHP API equivalent.

@@ -16,6 +16,7 @@ from .models import (
     ParsedArea,
     ParsedMessage,
     ParserException,
+    ReaderIssue,
     ReaderOptions,
     WriterOptions,
 )
@@ -31,6 +32,7 @@ __all__ = [
     "OutgoingMessage",
     "ParsedArea",
     "ParsedMessage",
+    "ReaderIssue",
     "ReaderOptions",
     "WriterOptions",
     "ParserException",
