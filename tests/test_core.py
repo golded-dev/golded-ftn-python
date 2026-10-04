@@ -244,7 +244,9 @@ def test_values() -> None:
 def test_readme() -> None:
     readme = Path(__file__).parents[1] / "README.md"
     namespace: dict[str, object] = {}
-    for example in re.findall(r"```python\n(.*?)```", readme.read_text(), re.DOTALL):
+    for example in re.findall(
+        r"```python\n(.*?)```", readme.read_text(encoding="utf-8"), re.DOTALL
+    ):
         exec(compile(example, str(readme), "exec"), namespace)
 
 

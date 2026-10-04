@@ -21,7 +21,9 @@ def run(*args: str, cwd: Path) -> None:
 
 
 def main() -> None:
-    project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+        "project"
+    ]
     wheels = list((ROOT / "dist").glob("*.whl"))
     sdists = list((ROOT / "dist").glob("*.tar.gz"))
     assert len(wheels) == len(sdists) == 1, "Expected exactly one wheel and sdist"
