@@ -2,7 +2,6 @@
 
 The authoritative version is in `pyproject.toml`. Build metadata follows the
 [PyPA guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/).
-The PyPI project endpoint returned HTTP 404 during the local release check.
 The manual `publish.yml` workflow uploads reviewed GitHub release assets via
 PyPI Trusted Publishing; it never runs automatically on push or release.
 
@@ -77,7 +76,7 @@ After this tag's CI succeeds and the GitHub release contains both archives and
 `RELEASE-SHA256.txt`, run:
 
 ```sh
-gh workflow run publish.yml --repo golded-dev/golded-ftn-python -f tag=v1.2.0
+gh workflow run publish.yml --repo golded-dev/golded-ftn-python -f tag=v1.2.1
 ```
 
 The workflow verifies SHA-256 and uploads those exact release assets. Publish
@@ -102,3 +101,18 @@ format CRUD examples. GoldED interoperability remains deferred.
 The tagged archives retain the pre-publication documentation used during their
 review. Current GitHub documentation records publication; the release tag,
 archives and checksum manifest remain unchanged.
+
+## 1.2.1 release — 2026-10-05
+
+Patch release for opt-in mojibake repair. Literal degree signs are protected
+while DOS and UTF-8-as-Latin-1 damage elsewhere on the line remains repairable.
+Public signatures and runtime dependencies are unchanged.
+
+Run the complete CI gate and distribution verifier for this version. Publish
+the reviewed wheel and sdist through the existing Trusted Publishing workflow,
+then verify their public hashes and a fresh PyPI installation.
+
+Local checks on macOS with CPython 3.14.6 passed: 130 tests, Ruff lint and
+format, strict mypy, public API stubtest, wheel/sdist metadata and contents,
+sdist rebuild, isolated installed-wheel tests and consumer typing. CI results
+and publication must be verified for the release commit separately.

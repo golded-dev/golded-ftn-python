@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.1 — 2026-10-05
 
 Preserve literal degree and temperature signs during opt-in mojibake repair,
 including lines that also contain DOS or UTF-8-as-Latin-1 damage.
