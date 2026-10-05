@@ -116,3 +116,19 @@ Local checks on macOS with CPython 3.14.6 passed: 130 tests, Ruff lint and
 format, strict mypy, public API stubtest, wheel/sdist metadata and contents,
 sdist rebuild, isolated installed-wheel tests and consumer typing. CI results
 and publication must be verified for the release commit separately.
+
+
+## Published 1.2.1 — 2026-10-05
+
+[PyPI](https://pypi.org/project/golded-ftn/1.2.1/) and
+[GitHub](https://github.com/golded-dev/golded-ftn-python/releases/tag/v1.2.1)
+provide the reviewed wheel and sdist from commit `6877fdb`.
+[CI](https://github.com/golded-dev/golded-ftn-python/actions/runs/37355096596)
+passed on Linux Python 3.12–3.14 and macOS/Windows Python 3.14.
+[Trusted Publishing](https://github.com/golded-dev/golded-ftn-python/actions/runs/37355276053)
+passed. Both public archives matched the SHA-256 manifest. A fresh environment
+installed 1.2.1 from PyPI after refreshing index metadata and passed the
+degree-preservation and mixed-mojibake examples.
+
+The archives retain the documentation reviewed before publication. This
+publication record does not change the tag, artifacts or checksums.
