@@ -3,7 +3,8 @@
 The authoritative version is in `pyproject.toml`. Build metadata follows the
 [PyPA guide](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/).
 The PyPI project endpoint returned HTTP 404 during the local release check.
-CI contains no publish job.
+The manual `publish.yml` workflow uploads reviewed GitHub release assets via
+PyPI Trusted Publishing; it never runs automatically on push or release.
 
 Run the contributing checks, then `uv build` and `uv run twine check dist/*`.
 Inspect wheel/sdist metadata and contents. Extract the sdist into a temporary
@@ -52,3 +53,31 @@ of this local preparation.
 
 Archive checksums are recorded separately in `RELEASE-SHA256.txt` at the
 repository root, outside the archives, after the final build.
+
+## PyPI Trusted Publishing
+
+Create a PyPI account, verify its email and configure two-factor authentication.
+For a first publication, add a pending publisher at
+<https://pypi.org/manage/account/publishing/> with these exact fields:
+
+- PyPI project: `golded-ftn`
+- GitHub owner: `golded-dev`
+- GitHub repository: `golded-ftn-python`
+- Workflow filename: `publish.yml`
+- Environment: `pypi`
+
+See [PyPI's pending-publisher instructions](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/).
+No API token or password is required by the workflow. The account setup is a
+manual prerequisite; a GitHub release does not create the PyPI project.
+
+After this tag's CI succeeds and the GitHub release contains both archives and
+`RELEASE-SHA256.txt`, run:
+
+```sh
+gh workflow run publish.yml --repo golded-dev/golded-ftn-python -f tag=v1.2.0
+```
+
+The workflow verifies SHA-256 and uploads those exact release assets. Publish
+core first, verify installation from PyPI, then dispatch the format workflows.
+Confirm the workflow result, PyPI version and hashes, and installation in a fresh
+environment. Do not store publishing credentials in this repository.
