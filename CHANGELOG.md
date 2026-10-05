@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 — 2026-10-05
+
+Add writer sessions, record identities, byte revisions, explicit patches and
+writer errors. Outgoing messages now carry reply links and routing. Shared
+internal I/O supports record locks, strict encoding and in-place rollback.
+
 ## 1.1.0 — Unreleased
 
 Add immutable `ReaderIssue` and explicit archive options. Archive mode requires

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -104,9 +105,17 @@ class OutgoingMessage:
     attributes_raw: int | None = None
     control_lines: tuple[ControlLine, ...] = ()
     provenance: MessageProvenance | None = None
+    reply_to_msgno: int | None = None
+    reply1st_msgno: int | None = None
+    reply_next_msgno: int | None = None
+    reply_list: tuple[int, ...] = ()
+    routing_seen_by: tuple[str, ...] = ()
+    routing_path: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "control_lines", tuple(self.control_lines))
+        for name in ("reply_list", "routing_seen_by", "routing_path"):
+            object.__setattr__(self, name, tuple(getattr(self, name)))
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -168,7 +177,91 @@ class ReaderOptions:
 @dataclass(frozen=True, slots=True, kw_only=True)
 class WriterOptions:
     target_charset: str = "CP850"
+    lock_timeout: float = 5.0
+    concurrent: bool = False
+
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.lock_timeout) or self.lock_timeout < 0:
+            raise ValueError("lock_timeout must be finite and non-negative")
 
 
 class ParserException(RuntimeError):
     """A concrete reader could not parse its source."""
+
+
+class Unset:
+    """Marker for a field that a patch leaves untouched."""
+
+    __slots__ = ()
+
+
+UNSET = Unset()
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class MessagePatch:
+    from_name: str | None | Unset = UNSET
+    to_name: str | None | Unset = UNSET
+    subject: str | None | Unset = UNSET
+    body_text: str | None | Unset = UNSET
+    external_id: str | None | Unset = UNSET
+    from_address: FtnAddress | None | Unset = UNSET
+    to_address: FtnAddress | None | Unset = UNSET
+    posted_at: datetime | None | Unset = UNSET
+    attributes_raw: int | None | Unset = UNSET
+    control_lines: tuple[ControlLine, ...] | None | Unset = UNSET
+    provenance: MessageProvenance | None | Unset = UNSET
+    reply_to_msgno: int | None | Unset = UNSET
+    reply1st_msgno: int | None | Unset = UNSET
+    reply_next_msgno: int | None | Unset = UNSET
+    reply_list: tuple[int, ...] | None | Unset = UNSET
+    routing_seen_by: tuple[str, ...] | None | Unset = UNSET
+    routing_path: tuple[str, ...] | None | Unset = UNSET
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class MessageIdentity:
+    format: str
+    base: str
+    msgno: int
+    board: int | None = None
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class RevisionToken:
+    identity: MessageIdentity
+    location: tuple[int, ...]
+    digest: str
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class WriteResult:
+    identity: MessageIdentity
+    revision: RevisionToken
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class SessionMessage:
+    message: ParsedMessage
+    identity: MessageIdentity
+    revision: RevisionToken
+
+
+class WriterError(RuntimeError):
+    """A message-base write failed."""
+
+
+class ConflictError(WriterError):
+    """The target no longer matches the supplied revision."""
+
+
+class LockTimeoutError(WriterError):
+    """The operation could not obtain the base lock in time."""
+
+
+class RollbackError(WriterError):
+    """An operation failed and its original bytes could not be restored."""
+
+
+class UnsupportedOperationError(WriterError):
+    """The requested operation or concurrency mode is unsupported."""

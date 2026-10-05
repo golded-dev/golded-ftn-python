@@ -1,7 +1,9 @@
 # golded-ftn
 
-This Python library owns shared FTN values, protocols and pure text helpers.
-Concrete readers, writers, databases and ingest policy belong to consumers.
+This Python library owns shared FTN values, protocols, pure text helpers and
+internal writer I/O primitives. Concrete format packages own serialization,
+base validation and the choice of lock file and byte. Databases and ingest policy
+belong to consumers.
 
 Preserve source bytes separately from decoded or repaired text. ControlLine.raw
 is the loaded text line, including trailing nulls, without its line separator.
@@ -25,6 +27,12 @@ Strict reading stays the default. Archive mode requires an issue callback and
 reports every recovery, skipped record and unsafe traversal stop. Keep source
 paths, identities and byte offsets in issues; keep message contents out. Callback
 failures propagate. Protect both modes with independent synthetic fixtures.
+
+Writer revisions cover message bytes and physical location, never a global base
+counter. Patches distinguish UNSET from None. Test deterministic lock contention
+and injected write/flush/rollback failures. Use the retained lock descriptor for
+all access to its file; opening and closing another descriptor can drop POSIX
+locks. Concurrent GoldED use requires format, platform and build evidence.
 
 # Ash personality
 

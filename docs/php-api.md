@@ -23,8 +23,10 @@ Fields use snake_case. `reply1stMsgno` becomes `reply1st_msgno`.
 | MessageSourceLocator::find | MessageSourceLocator.find |
 
 Protocols accept `str | os.PathLike[str]` paths. Readers yield
-`Iterable[ParsedMessage]`; writers take `Iterable[OutgoingMessage]` and return
-an integer count. Catalogs yield `Iterable[MessageSource]`; locators return
+`Iterable[ParsedMessage]`; the legacy batch `MessageWriter.write` takes
+`Iterable[OutgoingMessage]` and returns an integer count. The session writer
+contracts `MessageBaseWriter` and `MessageWriterSession` are described below.
+Catalogs yield `Iterable[MessageSource]`; locators return
 `str | None`. Options remain optional with CP850 defaults.
 
 Python differences are deliberate: immutable tuples and keyword-only dataclasses;
@@ -53,3 +55,25 @@ to use the default candidate encodings.
 
 Python adds `ReaderIssue` and `ReaderOptions(archive_mode=True, on_issue=...)`
 for reported archive recovery. These have no PHP API equivalent.
+
+
+Python adds `MessageBaseWriter.create/open` and `MessageWriterSession` with
+`read`, `append`, `update` and `delete`. The legacy `MessageWriter.write` protocol
+remains available for consumers; concrete formats use sessions for editing.
+
+`MessageIdentity` distinguishes the format, base, message number and optional
+Hudson board. `SessionMessage` pairs a parsed message with that identity and a
+`RevisionToken`; writes return `WriteResult`. Revisions include physical record
+locations and SHA-256 over raw header, metadata and text bytes. External MSGID
+is separate from record identity.
+
+`MessagePatch` leaves `UNSET` fields untouched. Explicit `None` requests clearing
+and the concrete format rejects clearing fields it cannot represent. Outgoing
+messages include reply links, complete reply lists and unexpanded routing tuples.
+`WriterOptions` defaults to CP850, a five-second lock timeout and offline use.
+Concrete packages decide whether a tested concurrent mode is available.
+
+Writer errors are `WriterError`, `ConflictError`, `LockTimeoutError`,
+`RollbackError` and `UnsupportedOperationError`. A failed rollback requires the
+concrete session to stop accepting operations. Rollback covers ordinary operation
+failures; it does not provide recovery from process termination or power loss.

@@ -1,12 +1,18 @@
 from collections.abc import Iterable
+from contextlib import AbstractContextManager
 from os import PathLike
 from typing import Protocol
 
 from .models import (
+    MessageIdentity,
+    MessagePatch,
     MessageSource,
     OutgoingMessage,
     ParsedMessage,
     ReaderOptions,
+    RevisionToken,
+    SessionMessage,
+    WriteResult,
     WriterOptions,
 )
 
@@ -34,3 +40,24 @@ class MessageSourceCatalog(Protocol):
 
 class MessageSourceLocator(Protocol):
     def find(self, path: str | PathLike[str]) -> str | None: ...
+
+
+class MessageWriterSession(Protocol):
+    def read(self, msgno: int) -> SessionMessage: ...
+    def append(self, message: OutgoingMessage) -> WriteResult: ...
+    def update(
+        self,
+        identity: MessageIdentity,
+        patch: MessagePatch,
+        expected_revision: RevisionToken,
+    ) -> WriteResult: ...
+    def delete(
+        self, identity: MessageIdentity, expected_revision: RevisionToken
+    ) -> MessageIdentity: ...
+
+
+class MessageBaseWriter(Protocol):
+    def create(self, path: str | PathLike[str]) -> None: ...
+    def open(
+        self, path: str | PathLike[str], options: WriterOptions | None = None
+    ) -> AbstractContextManager[MessageWriterSession]: ...

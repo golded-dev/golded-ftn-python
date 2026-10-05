@@ -15,7 +15,7 @@ git clone https://github.com/golded-dev/golded-ftn-python.git
 cd golded-ftn-python
 uv sync --locked
 uv build
-python -m pip install dist/golded_ftn-1.1.0-py3-none-any.whl
+python -m pip install dist/golded_ftn-1.2.0-py3-none-any.whl
 ```
 
 ```python
@@ -68,7 +68,7 @@ Synthetic IDs hash the exact UTF-8 JSON array of names, subject, date and comple
 body. Consumers choose date formatting. These IDs neither prove identical source
 records nor replace a supplied MSGID.
 
-See [PHP API mapping](docs/php-api.md), [contributing](CONTRIBUTING.md),
+See the [complete API reference](docs/api.md), [PHP API mapping](docs/php-api.md), [contributing](CONTRIBUTING.md),
 [release checks](docs/releasing.md) and [security](SECURITY.md).
 
 ## Archive reading

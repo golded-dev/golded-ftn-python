@@ -1,15 +1,22 @@
 from .charset import DecodeErrors, detect_charset, to_utf8
 from .contracts import (
     MessageBaseReader,
+    MessageBaseWriter,
     MessageSourceCatalog,
     MessageSourceLocator,
     MessageWriter,
+    MessageWriterSession,
 )
 from .control_lines import extract_msgid, parse_message
 from .models import (
+    UNSET,
+    ConflictError,
     ControlLine,
     FtnAddress,
+    LockTimeoutError,
     MessageControlLines,
+    MessageIdentity,
+    MessagePatch,
     MessageProvenance,
     MessageSource,
     OutgoingMessage,
@@ -18,12 +25,33 @@ from .models import (
     ParserException,
     ReaderIssue,
     ReaderOptions,
+    RevisionToken,
+    RollbackError,
+    SessionMessage,
+    Unset,
+    UnsupportedOperationError,
+    WriterError,
+    WriteResult,
     WriterOptions,
 )
 from .mojibake import MojibakeRepairResult, repair_mojibake
 from .text import parse_body, read_null_padded_field, synthetic_id
 
 __all__ = [
+    "MessageBaseWriter",
+    "MessageWriterSession",
+    "UNSET",
+    "Unset",
+    "MessagePatch",
+    "MessageIdentity",
+    "RevisionToken",
+    "WriteResult",
+    "SessionMessage",
+    "WriterError",
+    "ConflictError",
+    "LockTimeoutError",
+    "RollbackError",
+    "UnsupportedOperationError",
     "ControlLine",
     "FtnAddress",
     "MessageControlLines",
