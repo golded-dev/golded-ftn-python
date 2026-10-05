@@ -307,6 +307,12 @@ and decode strictly are discarded. Malformed RFC 2047 words remain unchanged
 when decoding fails. Repair always returns a new result and never modifies
 source data.
 
+Literal degree signs are protected after an ASCII digit or before uppercase
+C/F followed by a non-letter or end of line. Spaces and tabs are allowed
+between the digit/sign/unit; the context never crosses a line break. Thus
+`m°de at 20 °C` becomes `møde at 20 °C`, and `SÃ¥dan at 10°` becomes
+`Sådan at 10°`. Other degree-shaped damage, such as `°l`, remains repairable.
+
 CRLF and CR are normalized to LF even when `changed` is false. `confidence` is
 the mean of line scores, including zero scores for unchanged lines, capped at
 1. This is an opt-in heuristic tuned to European-language fixtures, not a

@@ -7,6 +7,7 @@ from .charset import _resolve_charset
 _VISIBLE = ("CP850", "CP437", "CP865", "ISO-8859-1", "Windows-1252")
 _INTENDED = ("UTF-8", "ISO-8859-1", "Windows-1252", "CP850")
 _DAMAGE = ("Ã", "Â", "â", "�", "°", "÷", "õ", "Õ", "┼", "▀", "³")
+_LITERAL_DEGREE = re.compile(r"([0-9][ \t]*°|°[ \t]*[CF](?![A-Za-z]))")
 _PLAUSIBLE = "åæøäöüßÅÆØÄÖÜ"
 _WORDS = ("møde", "för", "daß", "müßte", "gehört", "geändert", "ændret", "på", "ikke")
 
@@ -22,7 +23,7 @@ class MojibakeRepairResult:
 
 def _score(text: str) -> float:
     damage = sum(
-        len(re.findall(r"(?<![0-9])°(?![0-9])", text)) if c == "°" else text.count(c)
+        _LITERAL_DEGREE.sub("", text).count("°") if c == "°" else text.count(c)
         for c in _DAMAGE
     )
     return (
@@ -58,7 +59,10 @@ def _repair_line(line: str, declared: str | None, prefer: bool) -> MojibakeRepai
                     continue
                 try:
                     # Strict round trips exclude candidates that lose characters.
-                    candidate = line.encode(visible).decode(intended)
+                    candidate = "".join(
+                        part if index % 2 else part.encode(visible).decode(intended)
+                        for index, part in enumerate(_LITERAL_DEGREE.split(line))
+                    )
                 except (LookupError, UnicodeError):
                     continue
                 score = _score(candidate) - _score(line)

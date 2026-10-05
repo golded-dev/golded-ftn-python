@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+Preserve literal degree and temperature signs during opt-in mojibake repair,
+including lines that also contain DOS or UTF-8-as-Latin-1 damage.
+
 ## 1.2.0 — 2026-10-05
 
 Add writer sessions, record identities, byte revisions, explicit patches and
