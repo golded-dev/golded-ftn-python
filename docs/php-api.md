@@ -86,3 +86,16 @@ Writer errors are `WriterError`, `ConflictError`, `LockTimeoutError`,
 `RollbackError` and `UnsupportedOperationError`. A failed rollback requires the
 concrete session to stop accepting operations. Rollback covers ordinary operation
 failures; it does not provide recovery from process termination or power loss.
+
+## GoldED+ historical charset names
+
+Both packages recognize the CP866, KOI8-R, CP1251, KOI8-U and CP1125 names listed in the
+[charset findings](golded-plus-charset-findings.md). Detection followed by decoding
+is covered with literal Cyrillic bytes and expected Unicode. CP850 remains the
+default, including `IBMPC`; RFC body-charset detection is not added. Python
+resolves aliases in configured fallbacks; PHP retains its fallback string as-is.
+
+PHP `Text::toUtf8()` uses iconv for CP437/IBM437 and CP1125 when mbstring rejects
+the encoding name. Other encodings retain existing mbstring behavior, including
+substitution on invalid input; Python byte decoding remains strict by default.
+Both helpers remove trailing null padding.

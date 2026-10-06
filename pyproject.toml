@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "golded-ftn"
-version = "1.2.1"
+version = "1.2.2"
 description = "Shared FTN message contracts, values and text helpers"
 readme = "README.md"
 requires-python = ">=3.12"

@@ -2,12 +2,14 @@
 
 Repository: [`golded-ftn-python`](https://github.com/golded-dev/golded-ftn-python).
 The distribution remains `golded-ftn`; imports use `golded_ftn`.
-The source is public on GitHub. [Version 1.2.1 is available on PyPI](https://pypi.org/project/golded-ftn/1.2.1/).
+The source is public on GitHub. Version 1.2.2 is prepared for release;
+[1.2.1 remains the published PyPI version](https://pypi.org/project/golded-ftn/1.2.1/).
+The installation example below targets 1.2.2 once published.
 
 Install with Python 3.12 or newer:
 
 ```sh
-python -m pip install golded-ftn==1.2.1
+python -m pip install golded-ftn==1.2.2
 ```
 
 Shared FTN message values, reader/writer protocols and text helpers for Python
@@ -21,7 +23,7 @@ git clone https://github.com/golded-dev/golded-ftn-python.git
 cd golded-ftn-python
 uv sync --locked
 uv build
-python -m pip install dist/golded_ftn-1.2.1-py3-none-any.whl
+python -m pip install dist/golded_ftn-1.2.2-py3-none-any.whl
 ```
 
 ```python
@@ -54,6 +56,21 @@ Decoding is strict by default. Pass `errors="replace"` or `errors="ignore"`
 explicitly when lossy decoding is intended. An unknown declared charset uses the
 configured fallback. FTN aliases also work as fallback names. An invalid fallback
 always raises `LookupError`, even when the message declares a known charset.
+
+Historical Cyrillic declarations are supported in both `CHRS` and `CHARSET`:
+
+| Names | Decoded as |
+| --- | --- |
+| `CP-866`, `+7FIDO`, `+7_FIDO`, `FIDO7`, `FIDO_7`, `RUS` | CP866 |
+| `KOI`, `KOI8`, `GOST`, `CP20866` | KOI8-R |
+| `WIN`, `WIN-1251`, `WINDOWS-1251`, `CP-1251` | CP1251 |
+| `KOI8-U`, `KOI8U`, `KOU`, `KOI-U`, `CP21866` | KOI8-U |
+| `CP1125`, `UKR` | CP1125 |
+
+These aliases follow [GoldED+'s configuration](https://github.com/golded-plus/golded-plus/blob/1a251c6375081453a410bb8d647be120b8902de3/cfgs/config/advanced.cfg#L1498).
+Names are case-insensitive and also work as configured fallbacks. The first FTN
+charset declaration wins; RFC `Content-Type` is not used for body detection.
+The default and `IBMPC` remain CP850.
 
 `repair_mojibake` stays opt-in; its confidence is a heuristic score. Keep the
 original bytes/text separately. Repair preserves box-drawing frames and block

@@ -182,14 +182,20 @@ even when the message has a recognized declaration. Invalid fallbacks raise
 | `CP850`, `IBM850`, `IBMPC`, `IBM` | `CP850` |
 | `LATIN-1`, `LATIN1`, `8859-1`, `ISO-8859-1`, `ISO8859-1` | `ISO-8859-1` |
 | `ASCII`, `USASCII` | `ASCII` |
-| `CP866`, `IBM866` | `CP866` |
-| `KOI8-R`, `KOI8R` | `KOI8-R` |
+| `CP866`, `IBM866`, `CP-866`, `+7FIDO`, `+7_FIDO`, `FIDO7`, `FIDO_7`, `RUS` | `CP866` |
+| `KOI8-R`, `KOI8R`, `KOI`, `KOI8`, `GOST`, `CP20866` | `KOI8-R` |
+| `KOI8-U`, `KOI8U`, `KOU`, `KOI-U`, `CP21866` | `KOI8-U` |
+| `CP1125`, `UKR` | `CP1125` |
 | `CP437`, `IBM437` | `CP437` |
-| `CP1251` | `CP1251` |
+| `CP1251`, `WIN`, `WIN-1251`, `WINDOWS-1251`, `CP-1251` | `CP1251` |
 | `CP1252` | `CP1252` |
 | `CP1250` | `CP1250` |
 | `LATIN-2`, `ISO-8859-2` | `ISO-8859-2` |
 | `UTF-8`, `UTF8` | `UTF-8` |
+
+The historical Cyrillic aliases and KOI8-U/CP1125 declaration support above were
+added in 1.2.2. CP850 remains the default, including `IBMPC`. RFC
+`Content-Type` does not participate in body-charset detection.
 
 Fallbacks additionally accept names understood by Python's codec registry.
 The returned spelling is an alias target or the validated fallback spelling,
@@ -304,8 +310,18 @@ fall back to the default candidates.
 `prefer_quoted_lines=True` lowers the score threshold for matching quote lines;
 it does not mean only quoted lines are examined. Candidates that cannot encode
 and decode strictly are discarded. Malformed RFC 2047 words remain unchanged
-when decoding fails. Repair always returns a new result and never modifies
-source data.
+when decoding fails. Version 1.2.2 safeguards allow Latin-1 fallback only for MIME
+words declared ASCII/US-ASCII, while rejecting output that introduces C0 controls
+(except tab), DEL, C1 controls or replacement characters. Repair always returns
+a new result and never modifies source data.
+
+Version 1.2.2 repair safeguards preserve graphic frames, block art, already-correct
+Danish/German words and symbol-only noise. Isolated `┼`/`▀` inside words can still
+represent damaged letters, and strict UTF-8 recovery may repair graphic-looking
+bytes such as `m├©de`; these are contextual heuristics. Supported damaged words
+can be repaired beside correct words. Recognizable uuencode data lines and PGP
+armour regions are excluded. Pass complete text to retain PGP context; separate
+per-line calls cannot retain that state.
 
 Literal degree signs are protected after an ASCII digit or before uppercase
 C/F followed by a non-letter or end of line. Spaces and tabs are allowed
@@ -316,7 +332,17 @@ between the digit/sign/unit; the context never crosses a line break. Thus
 CRLF and CR are normalized to LF even when `changed` is false. `confidence` is
 the mean of line scores, including zero scores for unchanged lines, capped at
 1. This is an opt-in heuristic tuned to European-language fixtures, not a
-general detector. Readers and writers do not invoke it automatically.
+general detector. Protected regions also undergo LF normalization, so output is
+not a byte-preserving copy or a signature-verification input. Readers and writers
+do not invoke it automatically.
+
+Cyrillic charset support means that bytes labelled CP866, KOI8-R, CP1251, KOI8-U
+or CP1125 can be decoded with the selected codec. It does not establish that
+`repair_mojibake` can recover Russian or Ukrainian text already decoded with the
+wrong codec. The scorer is tuned to Western European text; Cyrillic repair has
+not been evaluated against a representative corpus. Such an evaluation must
+check damaged text with known correct originals, unchanged clean text, mixed
+scripts and graphic/payload preservation before claiming support.
 
 ```python
 from golded_ftn import repair_mojibake

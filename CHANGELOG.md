@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 1.2.2 — 2026-10-06
+
+Recognize historical GoldED+ Cyrillic charset aliases for CP866, KOI8-R,
+CP1251, KOI8-U and CP1125 in declarations and configured fallbacks. Keep
+CP850 defaults.
 
 Make opt-in mojibake repair more conservative around box drawing, block art,
 already-correct words, control characters and symbol-only noise. Repair damaged

@@ -76,7 +76,7 @@ After this tag's CI succeeds and the GitHub release contains both archives and
 `RELEASE-SHA256.txt`, run:
 
 ```sh
-gh workflow run publish.yml --repo golded-dev/golded-ftn-python -f tag=v1.2.1
+gh workflow run publish.yml --repo golded-dev/golded-ftn-python -f tag=v1.2.2
 ```
 
 The workflow verifies SHA-256 and uploads those exact release assets. Publish
@@ -132,3 +132,24 @@ degree-preservation and mixed-mojibake examples.
 
 The archives retain the documentation reviewed before publication. This
 publication record does not change the tag, artifacts or checksums.
+
+## Prepared 1.2.2 — 2026-10-06
+
+Patch release for conservative opt-in mojibake repair and historical GoldED+
+charset declarations. Add CP866, KOI8-R, CP1251, KOI8-U and CP1125 names while
+preserving CP850 defaults. Public signatures and runtime dependencies are unchanged.
+Cyrillic heuristic repair evaluation is deferred; decoding support does not
+claim Cyrillic repair support. The PHP sibling additionally fixes CP437/CP1125
+decoding where mbstring rejects those names.
+
+Publish only the reviewed 1.2.2 wheel, sdist and checksum manifest after the
+release version and publication are authorized. Remote CI, tag creation,
+GitHub/PyPI publication and public installation are separate checks. The
+shared documentation must pin the released core commit before its deployment.
+
+Local macOS checks with CPython 3.14.6 passed: 188 tests, Ruff lint and
+format, strict mypy, public API stubtest and locked dependency synchronization.
+The distribution gate checks metadata and contents, rebuilds the sdist, then
+runs installed-wheel tests and consumer typing outside the checkout. SHA-256
+values in `RELEASE-SHA256.txt` identify the final local candidate archives.
+Local verification does not establish remote CI or publication.
