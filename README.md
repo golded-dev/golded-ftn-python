@@ -2,9 +2,7 @@
 
 Repository: [`golded-ftn-python`](https://github.com/golded-dev/golded-ftn-python).
 The distribution remains `golded-ftn`; imports use `golded_ftn`.
-The source is public on GitHub. Version 1.2.2 is prepared for release;
-[1.2.1 remains the published PyPI version](https://pypi.org/project/golded-ftn/1.2.1/).
-The installation example below targets 1.2.2 once published.
+The source is public on GitHub. [Version 1.2.2 is available on PyPI](https://pypi.org/project/golded-ftn/1.2.2/).
 
 Install with Python 3.12 or newer:
 

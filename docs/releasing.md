@@ -153,3 +153,31 @@ The distribution gate checks metadata and contents, rebuilds the sdist, then
 runs installed-wheel tests and consumer typing outside the checkout. SHA-256
 values in `RELEASE-SHA256.txt` identify the final local candidate archives.
 Local verification does not establish remote CI or publication.
+
+## Published 1.2.2 — 2026-10-06
+
+[PyPI](https://pypi.org/project/golded-ftn/1.2.2/) and
+[GitHub](https://github.com/golded-dev/golded-ftn-python/releases/tag/v1.2.2)
+provide the reviewed archives from commit `5481c40`.
+[CI](https://github.com/golded-dev/golded-ftn-python/actions/runs/37425702673)
+passed on Linux Python 3.12–3.14 and macOS/Windows Python 3.14;
+[CodeQL](https://github.com/golded-dev/golded-ftn-python/actions/runs/37425702396)
+also passed. The
+[Trusted Publishing workflow](https://github.com/golded-dev/golded-ftn-python/actions/runs/37425834096)
+passed. Both archives downloaded from PyPI matched `RELEASE-SHA256.txt`.
+
+A clean macOS CPython 3.14.6 environment installed core 1.2.2 and all four
+format packages 1.2.0 from PyPI without local sources or cache. Dependency
+compatibility and seven public core decoding/repair scenarios passed. The
+first installation attempt saw stale index metadata immediately after
+publication; the subsequent cache-free install resolved the published version.
+
+The [documentation deployment](https://github.com/golded-dev/golded-ftn-python-docs/actions/runs/37425810939)
+passed with core pinned to the release commit. HTTP 200 responses for the
+public home and core API pages matched the committed HTML byte for byte.
+The [PHP 1.2.2 sibling](https://github.com/golded-dev/laravel-ftn/releases/tag/v1.2.2)
+is also public on Packagist; its clean consumer installation passed seven
+public API scenarios. Cyrillic heuristic repair evaluation remains deferred.
+
+This publication record leaves the release tag, reviewed archives and
+checksum manifest unchanged.
