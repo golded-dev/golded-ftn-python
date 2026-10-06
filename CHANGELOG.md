@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+Make opt-in mojibake repair more conservative around box drawing, block art,
+already-correct words, control characters and symbol-only noise. Repair damaged
+words beside correct Danish/German text. Recover Latin-1 encoded-words labelled
+as ASCII without guessing other declared charsets. Leave recognizable uuencode
+lines and PGP armour untouched during repair.
+
 ## 1.2.1 — 2026-10-05
 
 Preserve literal degree and temperature signs during opt-in mojibake repair,

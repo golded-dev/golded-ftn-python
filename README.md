@@ -55,6 +55,21 @@ explicitly when lossy decoding is intended. An unknown declared charset uses the
 configured fallback. FTN aliases also work as fallback names. An invalid fallback
 always raises `LookupError`, even when the message declares a known charset.
 
+`repair_mojibake` stays opt-in; its confidence is a heuristic score. Keep the
+original bytes/text separately. Repair preserves box-drawing frames and block
+art, literal degree signs and already-correct Danish/German words. Isolated
+`┼`/`▀` inside words can still be damaged letters; strict UTF-8 recovery can also
+repair graphics-looking bytes such as `m├©de`. These are contextual heuristics,
+not a guarantee that every graphic or corrupted line is recognized.
+
+Candidates cannot add C0 controls (except tab), DEL, C1 controls or replacement
+characters. A MIME word labelled ASCII may fall back to Latin-1; invalid UTF-8
+and unknown declarations do not get that fallback. Recognizable uuencode data
+lines and complete PGP armour regions are excluded from repair. Pass the whole
+text to preserve PGP context; separate per-line calls cannot retain that state.
+Line endings still normalize to LF, including protected regions, so repaired
+output is not a byte-preserving copy or a signature-verification input.
+
 Values are frozen, slotted and keyword-only. Collections are tuples. Date fields
 use `datetime`; the package never guesses a timezone. Unknown metadata stays
 `None`. Parsed address fields remain strings; outgoing addresses use `FtnAddress`.

@@ -36,11 +36,20 @@ charset aliases; SHA-256 over the complete JSON array rather than PHP's MD5 over
 a delimiter string and first 200 body bytes. `None` and an empty date differ.
 Trailing nulls are retained in `ControlLine.raw` while parsing ignores them.
 
-Mojibake uses the same encoding candidates, damage markers, plausible characters,
-words and quote threshold as PHP. Python strict round trips exclude PHP iconv
-IGNORE candidates that discard characters. RFC 2047 uses Python's email decoder;
-malformed words remain unchanged when decoding fails. Platform-specific iconv
-behaviour is not a compatibility promise.
+Mojibake starts from the same encoding candidates, plausible characters, words
+and quote threshold as PHP. Python strict round trips exclude PHP iconv IGNORE
+candidates that discard characters. Python additionally protects graphic frames,
+already-correct words, recognizable uuencode lines and PGP armour, and rejects
+candidates introducing controls or replacement characters. Its mixed-line repair
+and word-internal micro-sign scoring are contextual heuristics. The PHP implementation now has equivalent safeguards at its public repair
+boundary; codec implementations still need not agree on every input.
+
+Python's RFC 2047 path uses its email decoder; PHP decodes individual encoded
+words while preserving surrounding text. ASCII-labelled bytes that fail strict ASCII
+may fall back to Latin-1; other invalid/unknown declarations remain unchanged.
+The control/replacement guard also applies to MIME output. PGP protection needs
+the complete text, and existing LF normalization still applies to protected
+regions. Platform-specific iconv behavior is not a compatibility promise.
 
 Unlike PHP's legacy MSGID search, `extract_msgid` delegates to `parse_message`:
 only unquoted line-start kludges are considered, names are case-insensitive,
