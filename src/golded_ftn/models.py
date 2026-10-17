@@ -3,9 +3,11 @@ from __future__ import annotations
 import math
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Literal
+from enum import StrEnum
+from typing import Any, Literal
+from uuid import UUID
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -265,3 +267,109 @@ class RollbackError(WriterError):
 
 class UnsupportedOperationError(WriterError):
     """The requested operation or concurrency mode is unsupported."""
+
+
+class CommitState(StrEnum):
+    COMMITTED = "committed"
+    UNCOMMITTED = "uncommitted"
+    UNKNOWN = "unknown"
+
+
+class RecoveryOperationKind(StrEnum):
+    APPEND = "append"
+    UPDATE = "update"
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class PhysicalBaseIdentity:
+    format: Literal["msg", "opus", "jam", "squish", "hudson"]
+    canonical_key: str = field(repr=False)
+    lock_inode: tuple[int, int]
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class RecoveryReference:
+    schema_version: int
+    format: Literal["msg", "opus", "jam", "squish", "hudson"]
+    physical_base: PhysicalBaseIdentity
+    transaction_id: UUID
+    operation: RecoveryOperationKind
+    artifact_id: str = field(repr=False)
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class PreparedMutation:
+    reference: RecoveryReference
+    session_id: UUID
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class OfflineRecoveryAssertion:
+    session_id: UUID
+    physical_base: PhysicalBaseIdentity
+    transaction_ids: tuple[UUID, ...]
+    confirmed_offline: bool = True
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.confirmed_offline, bool) or not self.confirmed_offline:
+            raise ValueError("OfflineRecoveryAssertion requires confirmed_offline=True")
+        object.__setattr__(self, "transaction_ids", tuple(self.transaction_ids))
+
+
+_RECOVERY_ERROR_MESSAGES: dict[str, str] = {
+    "mismatched_recovery_root": ("Recovery root binding does not match physical base"),
+    "missing_recovery_binding": "Recovery root binding is missing",
+    "unsafe_recovery_path": ("Recovery path is outside registered base boundaries"),
+    "corrupt_recovery_manifest": ("Recovery manifest or artifact directory is corrupt"),
+    "invalid_offline_assertion": (
+        "Offline recovery assertion is invalid or already consumed"
+    ),
+    "unknown_commit_state": "Transaction commit state is unknown",
+    "foreign_target_occupied": (
+        "Planned new target path is occupied by a foreign file"
+    ),
+    "unexpected_base_modification": (
+        "Base files do not match recovery snapshot constraints"
+    ),
+    "missing_ready_manifest": "Expected ready recovery manifest is missing",
+    "conflicting_scan_dir": (
+        "Physical base is already bound to a different scan directory"
+    ),
+    "poisoned_recovery_session": "Recovery session is poisoned",
+    "invalid_prepared_mutation": (
+        "Prepared mutation does not match active recovery session"
+    ),
+}
+
+
+class RecoveryError(WriterError):
+    """A durable recovery or prepare/apply/settle invariant failed closed."""
+
+    code: str
+    _cause: BaseException | None
+
+    def __init__(self, message: str | None = None, *, code: str) -> None:
+        if not code or not isinstance(code, str):
+            raise ValueError("RecoveryError requires a non-empty string code")
+        self.code = code
+        self._cause = None
+        safe_prefix = _RECOVERY_ERROR_MESSAGES.get(
+            code, "Recovery invariant failed closed"
+        )
+        super().__init__(f"{safe_prefix} ({code})")
+
+    def __str__(self) -> str:
+        safe_prefix = _RECOVERY_ERROR_MESSAGES.get(
+            self.code, "Recovery invariant failed closed"
+        )
+        return f"{safe_prefix} ({self.code})"
+
+    def __repr__(self) -> str:
+        return f"RecoveryError(code={self.code!r})"
+
+    def __reduce__(self) -> tuple[Any, tuple[str]]:
+        return (RecoveryError._unpickle, (self.code,))
+
+    @staticmethod
+    def _unpickle(code: str) -> RecoveryError:
+        return RecoveryError(code=code)

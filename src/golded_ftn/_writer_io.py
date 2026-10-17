@@ -80,7 +80,7 @@ class LockManager:
                 entry = _Entry(os.open(path, os.O_RDWR | getattr(os, "O_BINARY", 0)))
                 self._entries[key] = entry
         if not entry.mutex.acquire(timeout=max(0.0, deadline - time.monotonic())):
-            raise LockTimeoutError(f"Timed out locking {os.fspath(path)}")
+            raise LockTimeoutError("Timed out locking base")
         locked = False
         try:
             while True:
@@ -93,9 +93,7 @@ class LockManager:
                         raise
                     remaining = deadline - time.monotonic()
                     if remaining <= 0:
-                        raise LockTimeoutError(
-                            f"Timed out locking {os.fspath(path)}"
-                        ) from None
+                        raise LockTimeoutError("Timed out locking base") from None
                     time.sleep(min(0.01, remaining))
             yield entry.fd
         finally:
@@ -212,11 +210,11 @@ class Transaction:
                 self.io.write(fd, 0, raw)
                 self.io.truncate(fd, len(raw))
                 self.io.flush(fd)
-        except BaseException as failure:
+        except BaseException:
+            operation = self.operation if self.operation else "rollback"
             raise RollbackError(
-                f"{self.base}: {self.operation} failed ({original}); "
-                f"rollback failed ({failure})"
-            ) from failure
+                f"Transaction rollback failed during {operation}"
+            ) from None
 
 
 def strict_encode(

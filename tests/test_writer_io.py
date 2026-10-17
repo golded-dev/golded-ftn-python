@@ -65,16 +65,21 @@ def test_transaction_restores_bytes_size_and_prior_operation(tmp_path: Path) -> 
 def test_failed_rollback_reports_context(tmp_path: Path) -> None:
     class BrokenIO(IO):
         def write(self, fd: int, offset: int, data: bytes) -> None:
-            raise OSError("injected rollback failure")
+            raise OSError("injected rollback failure /secret/path")
 
     path = tmp_path / "base"
     path.write_bytes(b"original")
     fd = os.open(path, os.O_RDWR)
     try:
-        with pytest.raises(RollbackError, match="append.*rollback failed"):
+        with pytest.raises(
+            RollbackError, match="^Transaction rollback failed during append$"
+        ) as exc_info:
             with Transaction(BrokenIO(), str(path), "append") as transaction:
                 transaction.watch(fd)
-                raise ValueError("original failure")
+                raise ValueError("original failure secret payload")
+        assert str(path) not in str(exc_info.value)
+        assert "secret" not in str(exc_info.value)
+        assert "secret" not in repr(exc_info.value)
     finally:
         os.close(fd)
 
@@ -95,9 +100,12 @@ def test_same_process_lock_timeout_uses_controlled_holder(tmp_path: Path) -> Non
     thread.start()
     assert ready.wait(5)
     try:
-        with pytest.raises(LockTimeoutError):
+        with pytest.raises(LockTimeoutError) as exc_info:
             with locks.acquire(path, timeout=0.02):
                 pytest.fail("acquired occupied lock")
+        assert str(exc_info.value) == "Timed out locking base"
+        assert os.fspath(path) not in str(exc_info.value)
+        assert os.fspath(path) not in repr(exc_info.value)
     finally:
         release.set()
         thread.join(5)
