@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0 (unreleased)
+
+- Add recoverable writer contracts, physical base identity, staged mutations and explicit committed/uncommitted/unknown settlement. Retain strict reading; archive recovery requires an issue callback.
+
 ## 1.2.2 — 2026-10-06
 
 Recognize historical GoldED+ Cyrillic charset aliases for CP866, KOI8-R,

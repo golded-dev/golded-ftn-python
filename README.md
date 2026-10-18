@@ -128,3 +128,10 @@ metadata or decoding deviation; a later skip still excludes that record.
 A stop means the area traversal is incomplete, even if earlier messages were
 returned. Filesystem and callback failures propagate. The format package defines
 the allowed recoveries; core does not read or repair files.
+
+## Candidate 1.3.0
+
+Add recoverable writer contracts, physical base identity, staged mutations and explicit committed/uncommitted/unknown settlement. Retain strict reading; archive recovery requires an issue callback.
+
+Linux and macOS, Python 3.12–3.14, are the release targets. Windows is outside
+this candidate's test and compatibility promises. See [release preparation](docs/release.md).
