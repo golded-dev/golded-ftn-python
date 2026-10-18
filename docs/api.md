@@ -966,6 +966,10 @@ Protocol classes can be generic, they are defined as::
         def meth(self) -> T:
             ...
 
+```text
+RecoverableMessageBaseWriter.recovery_session(self, path: str | os.PathLike[str], *, recovery_root: str | os.PathLike[str], options: golded_ftn.models.WriterOptions | None = None) -> contextlib.AbstractContextManager[golded_ftn.contracts.RecoverableWriterSession]
+```
+
 ### `RecoverableWriterSession`
 
 ```text
@@ -1002,6 +1006,42 @@ Protocol classes can be generic, they are defined as::
     class GenProto[T](Protocol):
         def meth(self) -> T:
             ...
+
+```text
+RecoverableWriterSession.read(self, msgno: int) -> golded_ftn.models.SessionMessage
+```
+
+```text
+RecoverableWriterSession.initialize_recovery_root(self, *, has_ready_journal_rows: bool) -> None
+```
+
+```text
+RecoverableWriterSession.pending(self) -> tuple[golded_ftn.models.RecoveryReference, ...]
+```
+
+```text
+RecoverableWriterSession.issue_offline_assertion(self, *, confirmed_offline: bool = True) -> golded_ftn.models.OfflineRecoveryAssertion
+```
+
+```text
+RecoverableWriterSession.recover(self, assertion: golded_ftn.models.OfflineRecoveryAssertion, resolve: collections.abc.Callable[[uuid.UUID], golded_ftn.models.CommitState]) -> tuple[golded_ftn.models.RecoveryReference, ...]
+```
+
+```text
+RecoverableWriterSession.prepare_append(self, transaction_id: uuid.UUID, message: golded_ftn.models.OutgoingMessage) -> golded_ftn.models.PreparedMutation
+```
+
+```text
+RecoverableWriterSession.prepare_update(self, transaction_id: uuid.UUID, identity: golded_ftn.models.MessageIdentity, patch: golded_ftn.models.MessagePatch, expected_revision: golded_ftn.models.RevisionToken) -> golded_ftn.models.PreparedMutation
+```
+
+```text
+RecoverableWriterSession.apply(self, mutation: golded_ftn.models.PreparedMutation) -> golded_ftn.models.WriteResult
+```
+
+```text
+RecoverableWriterSession.settle(self, mutation: golded_ftn.models.PreparedMutation, state: golded_ftn.models.CommitState) -> None
+```
 
 ### `CommitState`
 
