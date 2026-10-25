@@ -353,7 +353,7 @@ wheels = [
 
 [[package]]
 name = "golded-ftn"
-version = "1.3.0"
+version = "1.4.0"
 source = { editable = "." }
 
 [package.dev-dependencies]

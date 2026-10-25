@@ -1,8 +1,13 @@
 # Changelog
 
-## 1.3.0 (unreleased)
+## 1.4.0 — 2026-10-25
 
-- Add recoverable writer contracts, physical base identity, staged mutations and explicit committed/uncommitted/unknown settlement. Retain strict reading; archive recovery requires an issue callback.
+- Add recoverable writer contracts, physical base identity, staged mutations and
+  explicit committed/uncommitted/unknown settlement.
+- Accept 2D FTN addresses without inventing a zone, and add explicit default-zone
+  resolution for callers that require 3D addresses.
+- Let concrete readers expose streaming as the default and eager validation as an
+  explicit option. Archive recovery still requires an issue callback.
 
 ## 1.2.2 — 2026-10-06
 
