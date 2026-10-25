@@ -1,11 +1,13 @@
 # Changelog
 
-## 1.3.0 — 2026-10-25
+## 1.4.0 — 2026-10-25
 
-Accept canonical 2D FTN addresses without inventing a zone, and provide an
-explicit helper for callers that need to apply a default zone. Add the shared
-`ReaderOptions.eager` switch used by concrete readers to choose between
-streaming and whole-area validation.
+- Add recoverable writer contracts, physical base identity, staged mutations and
+  explicit committed/uncommitted/unknown settlement.
+- Accept 2D FTN addresses without inventing a zone, and add explicit default-zone
+  resolution for callers that require 3D addresses.
+- Let concrete readers expose streaming as the default and eager validation as an
+  explicit option. Archive recovery still requires an issue callback.
 
 ## 1.2.2 — 2026-10-06
 

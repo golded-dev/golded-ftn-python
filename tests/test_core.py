@@ -20,6 +20,10 @@ import golded_ftn as f
         "236/77",
         "236/77.1@fidonet",
         "0:0/0.0@a_B-1.x",
+        "236/77",
+        "236/77.1",
+        "236/77@fidonet",
+        "236/77.1@fidonet",
     ],
 )
 def test_address(value: str) -> None:
@@ -33,12 +37,12 @@ def test_invalid_address(value: str) -> None:
         f.FtnAddress.from_string(value)
 
 
-def test_address_can_fill_an_omitted_zone() -> None:
-    address = f.FtnAddress.from_string("236/77.1@fidonet")
-
+def test_two_d_address_preserves_missing_zone() -> None:
+    address = f.FtnAddress.from_string("230/9316")
     assert address.zone is None
-    assert str(address.with_default_zone(2)) == "2:236/77.1@fidonet"
-    assert f.FtnAddress.from_string("1:105/42").with_default_zone(2).zone == 1
+    assert str(address) == "230/9316"
+    assert str(address.with_default_zone(2)) == "2:230/9316"
+    assert address.with_default_zone(2).with_default_zone(99).zone == 2
 
 
 @pytest.mark.parametrize(

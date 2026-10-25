@@ -1,6 +1,6 @@
 # API reference for golded-ftn
 
-This reference covers all 40 names exported by `golded_ftn` in the 1.2.0
+This reference covers all public names exported by `golded_ftn` in the 1.3.0 candidate
 working tree. Import public values and functions from `golded_ftn`. Core owns
 values, protocols and pure text helpers. Concrete format packages own files,
 serialization, record validation and writer sessions.
@@ -575,10 +575,10 @@ codec; concrete writers do so during serialization. Encoding is strict, with
 no silent truncation or replacement characters. Conflicting charset metadata
 is rejected. Pure attribute changes preserve existing text bytes.
 
-`concurrent=True` is a request, not permission or a safety guarantee. Current
-MSG, JAM, Squish and Hudson writers reject it. GoldED must remain closed during
-offline editing. Live support requires format, platform and build-specific
-competing writer, reader and refresh tests. Windows starts with offline use.
+`concurrent=True` is a request, not permission or a safety guarantee. The candidate
+writers accept it for the qualified Linux/macOS GoldED 3.1.0 profile. Offline
+editing remains the default. Other builds, Windows and network filesystems are
+outside that qualification. See the writer guide for MSG/Opus race limitations.
 
 ### `Unset`
 
@@ -932,7 +932,177 @@ implement BBS behavior, routing policy, duplicate checking, packet handling,
 packing, repair of damaged bases or GoldED configuration. Internal modules such
 as `golded_ftn._writer_io` are implementation details and are not public exports.
 
-Current writer sessions are for offline editing. GoldED interoperability and
-concurrent reader/refresh tests are deferred; source review or passing Python
-tests do not establish those guarantees. Check the concrete package's format
+Writer sessions default to offline editing. The candidate suite records
+GoldED interoperability against pinned Linux/macOS builds; passing Python
+tests alone does not establish those guarantees. Check the concrete package's format
 notes and the shared writer guide before choosing a format or platform.
+
+### `RecoverableMessageBaseWriter`
+
+```text
+RecoverableMessageBaseWriter(*args, **kwargs)
+```
+
+Base class for protocol classes.
+
+Protocol classes are defined as::
+
+    class Proto(Protocol):
+        def meth(self) -> int:
+            ...
+
+Such classes are primarily used with static type checkers that recognize
+structural subtyping (static duck-typing).
+
+For example::
+
+    class C:
+        def meth(self) -> int:
+            return 0
+
+    def func(x: Proto) -> int:
+        return x.meth()
+
+    func(C())  # Passes static type check
+
+See PEP 544 for details. Protocol classes decorated with
+@typing.runtime_checkable act as simple-minded runtime protocols that check
+only the presence of given attributes, ignoring their type signatures.
+Protocol classes can be generic, they are defined as::
+
+    class GenProto[T](Protocol):
+        def meth(self) -> T:
+            ...
+
+```text
+RecoverableMessageBaseWriter.recovery_session(self, path: str | os.PathLike[str], *, recovery_root: str | os.PathLike[str], options: golded_ftn.models.WriterOptions | None = None) -> contextlib.AbstractContextManager[golded_ftn.contracts.RecoverableWriterSession]
+```
+
+### `RecoverableWriterSession`
+
+```text
+RecoverableWriterSession(*args, **kwargs)
+```
+
+Base class for protocol classes.
+
+Protocol classes are defined as::
+
+    class Proto(Protocol):
+        def meth(self) -> int:
+            ...
+
+Such classes are primarily used with static type checkers that recognize
+structural subtyping (static duck-typing).
+
+For example::
+
+    class C:
+        def meth(self) -> int:
+            return 0
+
+    def func(x: Proto) -> int:
+        return x.meth()
+
+    func(C())  # Passes static type check
+
+See PEP 544 for details. Protocol classes decorated with
+@typing.runtime_checkable act as simple-minded runtime protocols that check
+only the presence of given attributes, ignoring their type signatures.
+Protocol classes can be generic, they are defined as::
+
+    class GenProto[T](Protocol):
+        def meth(self) -> T:
+            ...
+
+```text
+RecoverableWriterSession.read(self, msgno: int) -> golded_ftn.models.SessionMessage
+```
+
+```text
+RecoverableWriterSession.initialize_recovery_root(self, *, has_ready_journal_rows: bool) -> None
+```
+
+```text
+RecoverableWriterSession.pending(self) -> tuple[golded_ftn.models.RecoveryReference, ...]
+```
+
+```text
+RecoverableWriterSession.issue_offline_assertion(self, *, confirmed_offline: bool = True) -> golded_ftn.models.OfflineRecoveryAssertion
+```
+
+```text
+RecoverableWriterSession.recover(self, assertion: golded_ftn.models.OfflineRecoveryAssertion, resolve: collections.abc.Callable[[uuid.UUID], golded_ftn.models.CommitState]) -> tuple[golded_ftn.models.RecoveryReference, ...]
+```
+
+```text
+RecoverableWriterSession.prepare_append(self, transaction_id: uuid.UUID, message: golded_ftn.models.OutgoingMessage) -> golded_ftn.models.PreparedMutation
+```
+
+```text
+RecoverableWriterSession.prepare_update(self, transaction_id: uuid.UUID, identity: golded_ftn.models.MessageIdentity, patch: golded_ftn.models.MessagePatch, expected_revision: golded_ftn.models.RevisionToken) -> golded_ftn.models.PreparedMutation
+```
+
+```text
+RecoverableWriterSession.apply(self, mutation: golded_ftn.models.PreparedMutation) -> golded_ftn.models.WriteResult
+```
+
+```text
+RecoverableWriterSession.settle(self, mutation: golded_ftn.models.PreparedMutation, state: golded_ftn.models.CommitState) -> None
+```
+
+### `CommitState`
+
+```text
+CommitState(*values)
+```
+
+Enum where members are also (and must be) strings
+
+### `RecoveryOperationKind`
+
+```text
+RecoveryOperationKind(*values)
+```
+
+Enum where members are also (and must be) strings
+
+### `PhysicalBaseIdentity`
+
+```text
+PhysicalBaseIdentity(*, format: "Literal['msg', 'opus', 'jam', 'squish', 'hudson']", canonical_key: 'str', lock_inode: 'tuple[int, int]') -> None
+```
+
+PhysicalBaseIdentity(*, format: "Literal['msg', 'opus', 'jam', 'squish', 'hudson']", canonical_key: 'str', lock_inode: 'tuple[int, int]')
+
+### `RecoveryReference`
+
+```text
+RecoveryReference(*, schema_version: 'int', format: "Literal['msg', 'opus', 'jam', 'squish', 'hudson']", physical_base: 'PhysicalBaseIdentity', transaction_id: 'UUID', operation: 'RecoveryOperationKind', artifact_id: 'str') -> None
+```
+
+RecoveryReference(*, schema_version: 'int', format: "Literal['msg', 'opus', 'jam', 'squish', 'hudson']", physical_base: 'PhysicalBaseIdentity', transaction_id: 'UUID', operation: 'RecoveryOperationKind', artifact_id: 'str')
+
+### `PreparedMutation`
+
+```text
+PreparedMutation(*, reference: 'RecoveryReference', session_id: 'UUID') -> None
+```
+
+PreparedMutation(*, reference: 'RecoveryReference', session_id: 'UUID')
+
+### `OfflineRecoveryAssertion`
+
+```text
+OfflineRecoveryAssertion(*, session_id: 'UUID', physical_base: 'PhysicalBaseIdentity', transaction_ids: 'tuple[UUID, ...]', confirmed_offline: 'bool' = True) -> None
+```
+
+OfflineRecoveryAssertion(*, session_id: 'UUID', physical_base: 'PhysicalBaseIdentity', transaction_ids: 'tuple[UUID, ...]', confirmed_offline: 'bool' = True)
+
+### `RecoveryError`
+
+```text
+RecoveryError(message: 'str | None' = None, *, code: 'str') -> 'None'
+```
+
+A durable recovery or prepare/apply/settle invariant failed closed.

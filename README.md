@@ -2,13 +2,12 @@
 
 Repository: [`golded-ftn-python`](https://github.com/golded-dev/golded-ftn-python).
 The distribution remains `golded-ftn`; imports use `golded_ftn`.
-The source is public on GitHub. Version 1.3.0 adds 2D FTN addresses and a shared
-reader option for eager loading.
+The source is public on GitHub. [Version 1.4.0 is available on PyPI](https://pypi.org/project/golded-ftn/1.4.0/).
 
 Install with Python 3.12 or newer:
 
 ```sh
-python -m pip install golded-ftn==1.3.0
+python -m pip install golded-ftn==1.4.0
 ```
 
 Shared FTN message values, reader/writer protocols and text helpers for Python
@@ -22,7 +21,7 @@ git clone https://github.com/golded-dev/golded-ftn-python.git
 cd golded-ftn-python
 uv sync --locked
 uv build
-python -m pip install dist/golded_ftn-1.3.0-py3-none-any.whl
+python -m pip install dist/golded_ftn-1.4.0-py3-none-any.whl
 ```
 
 ```python
@@ -129,3 +128,13 @@ metadata or decoding deviation; a later skip still excludes that record.
 A stop means the area traversal is incomplete, even if earlier messages were
 returned. Filesystem and callback failures propagate. The format package defines
 the allowed recoveries; core does not read or repair files.
+
+## Version 1.4.0
+
+Add recoverable writer contracts, physical-base identity and staged mutations
+with explicit settlement. FTN addresses may omit the zone, and readers can expose
+streaming by default with eager validation as an explicit option. Archive recovery
+still requires an issue callback.
+
+Linux and macOS, Python 3.12–3.14, are the release targets. Windows is outside
+this candidate's test and compatibility promises. See [release preparation](docs/release.md).
