@@ -31,7 +31,7 @@ types; freezing a model does not recursively freeze incorrectly typed inputs.
 ### `FtnAddress`
 
 ```text
-FtnAddress(*, zone: int, net: int, node: int,
+FtnAddress(*, zone: int | None, net: int, node: int,
            point: int | None = None, domain: str | None = None)
 FtnAddress.from_string(value: str) -> FtnAddress
 FtnAddress.try_from_string(value: str) -> FtnAddress | None
@@ -40,22 +40,28 @@ str(address) -> str
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `zone` | `int` | Required | Network zone. |
+| `zone` | `int \| None` | Required field; may be `None` | Network zone; omitted for 2D addresses. |
 | `net` | `int` | Required | Network number. |
 | `node` | `int` | Required | Node number. |
 | `point` | `int \| None` | `None` | Optional point, including explicit point `0`. |
 | `domain` | `str \| None` | `None` | Optional domain, with original case retained. |
 
-The parsers accept `zone:net/node`, optional `.point` and optional `@domain`,
-with surrounding whitespace stripped. Numeric parts contain ASCII digits only.
-Domains begin with an ASCII letter or digit and then allow letters, digits,
-periods, underscores and hyphens. Parsing accepts arbitrary non-negative integer
-sizes; it does not enforce a format's 16-bit address limits. Direct construction
-does not enforce this grammar.
+The parsers accept 2D `net/node` and 3D/4D/5D `zone:net/node`, with optional
+`.point` and optional `@domain`, and surrounding whitespace stripped. Numeric
+parts contain ASCII digits only. Domains begin with an ASCII letter or digit and
+then allow letters, digits, periods, underscores and hyphens. Parsing accepts
+arbitrary non-negative integer sizes; it does not enforce a format's 16-bit
+address limits. Direct construction does not enforce this grammar.
+
+A 2D address keeps `zone=None` and round-trips as `net/node`. That matches FTN
+practice: zone may be omitted. Call `with_default_zone(zone)` only when a
+caller explicitly needs a 3D address; parsing, export and write pipes must not
+invent a zone.
 
 `from_string` raises `ValueError` for invalid syntax. `try_from_string` returns
-`None`. `str` emits the full address and includes `.0` when point is explicitly
-zero. It does not normalize domain case or remove an explicit point.
+`None`. `str` emits the address without a zone when `zone` is `None`, and
+includes `.0` when point is explicitly zero. It does not normalize domain case
+or remove an explicit point.
 
 ### `ControlLine`
 
@@ -473,7 +479,8 @@ codes or sanitize a directly supplied `detail` string.
 
 ```text
 ReaderOptions(*, fallback_charset: str = "CP850", archive_mode: bool = False,
-              on_issue: Callable[[ReaderIssue], None] | None = None)
+              on_issue: Callable[[ReaderIssue], None] | None = None,
+              eager: bool = False)
 ```
 
 | Field | Type | Default | Meaning |
@@ -481,6 +488,7 @@ ReaderOptions(*, fallback_charset: str = "CP850", archive_mode: bool = False,
 | `fallback_charset` | `str` | `"CP850"` | Charset used when no recognized declaration is available. |
 | `archive_mode` | `bool` | `False` | Explicitly permit a concrete reader's documented recoveries. |
 | `on_issue` | `Callable[[ReaderIssue], None] \| None` | `None` | Callback receiving archive deviations. |
+| `eager` | `bool` | `False` | When true, concrete readers may load and validate the whole area before yielding; default streams. |
 
 `archive_mode=True` without `on_issue` raises `ValueError` at construction.
 The constructor does not validate the charset. Readers validate it when used.

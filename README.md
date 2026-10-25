@@ -2,12 +2,13 @@
 
 Repository: [`golded-ftn-python`](https://github.com/golded-dev/golded-ftn-python).
 The distribution remains `golded-ftn`; imports use `golded_ftn`.
-The source is public on GitHub. [Version 1.2.2 is available on PyPI](https://pypi.org/project/golded-ftn/1.2.2/).
+The source is public on GitHub. Version 1.3.0 adds 2D FTN addresses and a shared
+reader option for eager loading.
 
 Install with Python 3.12 or newer:
 
 ```sh
-python -m pip install golded-ftn==1.2.2
+python -m pip install golded-ftn==1.3.0
 ```
 
 Shared FTN message values, reader/writer protocols and text helpers for Python
@@ -21,7 +22,7 @@ git clone https://github.com/golded-dev/golded-ftn-python.git
 cd golded-ftn-python
 uv sync --locked
 uv build
-python -m pip install dist/golded_ftn-1.2.2-py3-none-any.whl
+python -m pip install dist/golded_ftn-1.3.0-py3-none-any.whl
 ```
 
 ```python

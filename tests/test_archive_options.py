@@ -32,3 +32,8 @@ def test_archive_issue_is_immutable_and_callback_receives_it() -> None:
 def test_strict_default_has_no_reporter() -> None:
     assert not ReaderOptions().archive_mode
     assert ReaderOptions().on_issue is None
+    assert not ReaderOptions().eager
+
+
+def test_eager_defaults_off() -> None:
+    assert ReaderOptions(eager=True).eager is True

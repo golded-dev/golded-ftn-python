@@ -17,7 +17,7 @@ class ControlLine:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class FtnAddress:
-    zone: int
+    zone: int | None
     net: int
     node: int
     point: int | None = None
@@ -25,15 +25,16 @@ class FtnAddress:
 
     @classmethod
     def try_from_string(cls, value: str) -> FtnAddress | None:
+        text = value.strip()
         match = re.fullmatch(
-            r"([0-9]+):([0-9]+)/([0-9]+)(?:\.([0-9]+))?(?:@([A-Za-z0-9][A-Za-z0-9._-]*))?",
-            value.strip(),
+            r"(?:([0-9]+):)?([0-9]+)/([0-9]+)(?:\.([0-9]+))?(?:@([A-Za-z0-9][A-Za-z0-9._-]*))?",
+            text,
         )
         if match is None:
             return None
         zone, net, node, point, domain = match.groups()
         return cls(
-            zone=int(zone),
+            zone=int(zone) if zone is not None else None,
             net=int(net),
             node=int(node),
             point=int(point) if point is not None else None,
@@ -47,8 +48,24 @@ class FtnAddress:
             raise ValueError(f"Invalid FTN address [{value}].")
         return address
 
+    def with_default_zone(self, zone: int) -> FtnAddress:
+        """Return this address with ``zone`` filled in when it was omitted (2D)."""
+        if self.zone is not None:
+            return self
+        return FtnAddress(
+            zone=zone,
+            net=self.net,
+            node=self.node,
+            point=self.point,
+            domain=self.domain,
+        )
+
     def __str__(self) -> str:
-        value = f"{self.zone}:{self.net}/{self.node}"
+        value = (
+            f"{self.zone}:{self.net}/{self.node}"
+            if self.zone is not None
+            else f"{self.net}/{self.node}"
+        )
         if self.point is not None:
             value += f".{self.point}"
         if self.domain is not None:
@@ -168,6 +185,7 @@ class ReaderOptions:
     fallback_charset: str = "CP850"
     archive_mode: bool = False
     on_issue: Callable[[ReaderIssue], None] | None = None
+    eager: bool = False
 
     def __post_init__(self) -> None:
         if self.archive_mode and self.on_issue is None:

@@ -17,6 +17,8 @@ import golded_ftn as f
         "2:236/77.1",
         "2:236/77@fidonet",
         "2:236/77.1@fidonet",
+        "236/77",
+        "236/77.1@fidonet",
         "0:0/0.0@a_B-1.x",
     ],
 )
@@ -24,13 +26,19 @@ def test_address(value: str) -> None:
     assert str(f.FtnAddress.from_string(" " + value + " ")) == value
 
 
-@pytest.mark.parametrize(
-    "value", ["236/77", "2:236", "2:3/4@", "2:3/4x", "٢:3/4", "2:3/4\nBAD"]
-)
+@pytest.mark.parametrize("value", ["2:236", "2:3/4@", "2:3/4x", "٢:3/4", "2:3/4\nBAD"])
 def test_invalid_address(value: str) -> None:
     assert f.FtnAddress.try_from_string(value) is None
     with pytest.raises(ValueError):
         f.FtnAddress.from_string(value)
+
+
+def test_address_can_fill_an_omitted_zone() -> None:
+    address = f.FtnAddress.from_string("236/77.1@fidonet")
+
+    assert address.zone is None
+    assert str(address.with_default_zone(2)) == "2:236/77.1@fidonet"
+    assert f.FtnAddress.from_string("1:105/42").with_default_zone(2).zone == 1
 
 
 @pytest.mark.parametrize(
@@ -107,11 +115,13 @@ def test_control_lines() -> None:
     assert c.tearline == "--- First"
     assert c.origin == "First board (2:236/77.1@fidonet)"
     assert str(c.origin_address) == "2:236/77.1@fidonet"
-    assert f.parse_message(" * Origin: Local echo (236/77)").origin_address is None
+    assert str(f.parse_message(" * Origin: Local echo (236/77)").origin_address) == (
+        "236/77"
+    )
     assert f.parse_message("\x01CHARSET: UTF-8").charset == "UTF-8"
     assert f.parse_message(
         " * Origin: First (236/77)\n * Origin: Next (2:236/78)"
-    ).origin_address == f.FtnAddress.from_string("2:236/78")
+    ).origin_address == f.FtnAddress.from_string("236/77")
 
 
 def test_quoted_controls() -> None:

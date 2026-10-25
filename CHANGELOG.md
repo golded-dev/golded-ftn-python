@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 — 2026-10-25
+
+Accept canonical 2D FTN addresses without inventing a zone, and provide an
+explicit helper for callers that need to apply a default zone. Add the shared
+`ReaderOptions.eager` switch used by concrete readers to choose between
+streaming and whole-area validation.
+
 ## 1.2.2 — 2026-10-06
 
 Recognize historical GoldED+ Cyrillic charset aliases for CP866, KOI8-R,
