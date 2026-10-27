@@ -161,7 +161,7 @@ class ParsedMessage:
     reply_to_msgno: int | None = None
     reply1st_msgno: int | None = None
     reply_next_msgno: int | None = None
-    area_code: str | None = None
+    area: str | None = None
     area_name: str | None = None
     area_sort_order: int | None = None
     area_meta_key: str | None = None
