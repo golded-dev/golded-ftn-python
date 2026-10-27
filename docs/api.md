@@ -1,7 +1,6 @@
 # API reference for golded-ftn
 
-This reference covers all public names exported by `golded_ftn` in the 1.3.0 candidate
-working tree. Import public values and functions from `golded_ftn`. Core owns
+This reference covers all public names exported by `golded_ftn` in version 1.5.0. Import public values and functions from `golded_ftn`. Core owns
 values, protocols and pure text helpers. Concrete format packages own files,
 serialization, record validation and writer sessions.
 
