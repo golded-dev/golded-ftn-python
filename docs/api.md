@@ -422,7 +422,7 @@ ParsedMessage(*, msgno: int, from_name: str, to_name: str, subject: str,
               body_text: str, attributes_raw: int, posted_at=None,
               external_id=None, from_address=None, to_address=None,
               reply_to_msgno=None, reply1st_msgno=None, reply_next_msgno=None,
-              area_code=None, area_name=None, area_sort_order=None,
+              area=None, area_name=None, area_sort_order=None,
               area_meta_key=None, control_lines=None, provenance=None)
 ```
 
@@ -441,7 +441,7 @@ ParsedMessage(*, msgno: int, from_name: str, to_name: str, subject: str,
 | `reply_to_msgno` | `int \| None` | `None` | Format-specific parent message link. |
 | `reply1st_msgno` | `int \| None` | `None` | Format-specific first reply link. |
 | `reply_next_msgno` | `int \| None` | `None` | Format-specific next reply link. |
-| `area_code` | `str \| None` | `None` | Area code when supplied by the reader. |
+| `area` | `str \| None` | `None` | Area code when supplied by the reader. |
 | `area_name` | `str \| None` | `None` | Area name when supplied by the reader. |
 | `area_sort_order` | `int \| None` | `None` | Area ordering value when supplied. |
 | `area_meta_key` | `str \| None` | `None` | Consumer metadata key when supplied. |

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0 — 2026-10-27
+
+- Rename ParsedMessage.area_code to area, including serialized message fields.
+
 ## 1.4.0 — 2026-10-25
 
 - Add recoverable writer contracts, physical base identity, staged mutations and

@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from dataclasses import asdict
 from os import PathLike, fspath
 from pathlib import Path
 
@@ -41,7 +42,7 @@ class Reader:
             body_text="Message body",
             attributes_raw=0,
             external_id="fake:1",
-            area_code="GENERAL",
+            area="GENERAL",
             area_name="General",
         )
 
@@ -69,6 +70,9 @@ def test_consumers() -> None:
     (source,) = catalog.sources(Path("/bbs/messages"))
     (message,) = reader.read(source.path)
     assert source.code == "GENERAL" and message.subject == "Hello"
+    assert message.area == "GENERAL"
+    assert asdict(message)["area"] == "GENERAL"
+    assert "area_code" not in asdict(message)
     assert Path(source.path) == Path("/bbs/messages") / "general"
     assert (
         writer.write(
