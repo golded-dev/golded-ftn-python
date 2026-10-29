@@ -2,7 +2,7 @@ from golded_ftn import repair_mojibake
 
 
 def test_repairs_trailing_mu_in_danish_subject() -> None:
-    """HAVEN msg 64 subject: CP850 æ stored as Latin-1 µ at end of word."""
+    """HAVEN msg 64 subject: Latin-1 æ read as CP850 µ at end of word."""
     result = repair_mojibake("Kastanjetrµ")
     assert result.text == "Kastanjetræ"
     assert result.changed
