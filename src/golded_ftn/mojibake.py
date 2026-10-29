@@ -28,7 +28,9 @@ def _score(text: str) -> float:
         _LITERAL_DEGREE.sub("", text).count("°") if c == "°" else text.count(c)
         for c in _DAMAGE
     )
-    damage += len(re.findall(r"[A-Za-z]µ(?=[A-Za-z])", text))
+    # µ after a letter is usually æ (Latin-1 read as CP850), including word-final
+    # subjects like Kastanjetrµ. Keep "10 µm" alone: space before µ.
+    damage += len(re.findall(r"[A-Za-z]µ", text))
     return (
         -2.5 * damage
         + 1.5 * sum(text.count(c) for c in _PLAUSIBLE)
