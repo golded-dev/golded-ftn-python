@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.1 — 2026-10-29
+
+- Repair word-final CP850 æ misdecoded as µ, such as Kastanjetrµ, during
+  opt-in mojibake repair.
+
 ## 1.5.0 — 2026-10-27
 
 - Rename ParsedMessage.area_code to area, including serialized message fields.
