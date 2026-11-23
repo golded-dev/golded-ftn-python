@@ -31,14 +31,16 @@ from .models import (
 class _Entry:
     fd: int
     mutex: threading.Lock = field(default_factory=threading.Lock)
+    users: int = 0
 
 
 class LockManager:
     """Retain one descriptor per inode; never close it during another operation.
 
-    Descriptors intentionally live until process exit: closing *any* descriptor for
-    an inode drops that process's POSIX record locks. Callers must use the yielded
-    descriptor for every access to the lock file, and must not open it separately.
+    On POSIX, descriptors live until process exit. Closing any descriptor for
+    an inode drops that process's POSIX record locks. Callers must use the
+    yielded descriptor for every access to the lock file.
+    On Windows, close the descriptor when no holder or waiter needs it.
     """
 
     def __init__(self) -> None:
@@ -67,11 +69,8 @@ class LockManager:
             os.close(fd)
 
     @contextmanager
-    def acquire(
-        self, path: str | PathLike[str], offset: int = 0, timeout: float = 5.0
-    ) -> Iterator[int]:
-
-        deadline = time.monotonic() + timeout
+    def _borrow(self, path: str | PathLike[str]) -> Iterator[_Entry]:
+        close_when_idle = sys.platform == "win32"
         with self._guard:
             stat = os.stat(path)
             key = stat.st_dev, stat.st_ino
@@ -79,29 +78,47 @@ class LockManager:
             if entry is None:
                 entry = _Entry(os.open(path, os.O_RDWR | getattr(os, "O_BINARY", 0)))
                 self._entries[key] = entry
-        if not entry.mutex.acquire(timeout=max(0.0, deadline - time.monotonic())):
-            raise LockTimeoutError("Timed out locking base")
-        locked = False
+            if close_when_idle:
+                entry.users += 1
         try:
-            while True:
-                try:
-                    _lock(entry.fd, offset, unlock=False)
-                    locked = True
-                    break
-                except OSError as error:
-                    if error.errno not in {errno.EACCES, errno.EAGAIN}:
-                        raise
-                    remaining = deadline - time.monotonic()
-                    if remaining <= 0:
-                        raise LockTimeoutError("Timed out locking base") from None
-                    time.sleep(min(0.01, remaining))
-            yield entry.fd
+            yield entry
         finally:
+            if close_when_idle:
+                with self._guard:
+                    entry.users -= 1
+                    if entry.users == 0:
+                        del self._entries[key]
+                        os.close(entry.fd)
+
+    @contextmanager
+    def acquire(
+        self, path: str | PathLike[str], offset: int = 0, timeout: float = 5.0
+    ) -> Iterator[int]:
+        deadline = time.monotonic() + timeout
+        with self._borrow(path) as entry:
+            if not entry.mutex.acquire(timeout=max(0.0, deadline - time.monotonic())):
+                raise LockTimeoutError("Timed out locking base")
+            locked = False
             try:
-                if locked:
-                    _lock(entry.fd, offset, unlock=True)
+                while True:
+                    try:
+                        _lock(entry.fd, offset, unlock=False)
+                        locked = True
+                        break
+                    except OSError as error:
+                        if error.errno not in {errno.EACCES, errno.EAGAIN}:
+                            raise
+                        remaining = deadline - time.monotonic()
+                        if remaining <= 0:
+                            raise LockTimeoutError("Timed out locking base") from None
+                        time.sleep(min(0.01, remaining))
+                yield entry.fd
             finally:
-                entry.mutex.release()
+                try:
+                    if locked:
+                        _lock(entry.fd, offset, unlock=True)
+                finally:
+                    entry.mutex.release()
 
 
 def _lock(fd: int, offset: int, *, unlock: bool) -> None:

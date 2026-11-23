@@ -21,3 +21,10 @@ jobs:
       - run: uv run --no-sync twine check dist/*
       - run: uv run --no-sync python scripts/verify_distribution.py
       - run: uv run --no-sync python -m mypy.stubtest golded_ftn --allowlist tests/stubtest-allowlist.txt
+  windows-lock:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+      - run: uv sync --locked --no-sources --all-extras --python 3.14
+      - run: uv run --no-sync pytest -q tests/test_writer_io.py -k windows_lock

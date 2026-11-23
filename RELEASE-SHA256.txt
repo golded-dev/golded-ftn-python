@@ -1,2 +1,2 @@
-a5f8d0cae62acfc377201c10151ca8db0cb8454f531a5d63f5208adb6246ba8a  dist/golded_ftn-1.5.1-py3-none-any.whl
-c0975141e2ef5ddcc3aaca5e79cc16f63f83730e674364c14fce6910fabcbfb5  dist/golded_ftn-1.5.1.tar.gz
+9d59dafa864ca983d8044d827b8087e44c5d7283330d2425bd4d2db383db9fb3  dist/golded_ftn-1.5.2-py3-none-any.whl
+d15a63d96751380eabb56828b0ce8b0237f77e0e5766280cbdc9c5710cfd4498  dist/golded_ftn-1.5.2.tar.gz

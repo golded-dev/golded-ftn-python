@@ -137,3 +137,22 @@ def test_unlock_failure_releases_process_mutex(
     monkeypatch.setattr(_writer_io, "_lock", original)
     with manager.acquire(path, timeout=0):
         pass
+
+
+def test_windows_lock_closes_idle_descriptor(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from golded_ftn import _writer_io
+
+    manager = _writer_io.LockManager()
+    path = tmp_path / "lock"
+    path.touch()
+    with monkeypatch.context() as patch:
+        if os.name != "nt":
+            patch.setattr(_writer_io, "_lock", lambda *args, **kwargs: None)
+            patch.setattr("golded_ftn._writer_io.sys.platform", "win32")
+        with manager.acquire(path) as fd:
+            assert os.fstat(fd).st_ino == path.stat().st_ino
+    with pytest.raises(OSError):
+        os.fstat(fd)
+    path.unlink()

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2 — 2026-11-23
+
+- Close Windows writer lock file descriptors once the last operation releases them, so closed bases can be moved or removed.
+
 ## 1.5.1 — 2026-10-29
 
 - Repair word-final Latin-1 æ misdecoded as CP850 µ, such as Kastanjetrµ, during
